@@ -57,7 +57,7 @@ void loop(){
     distance.right = 30;
     
     // get the next move, i.e. the new motor settings
-    motors = nextMove(si, motors);
+    motors = nextMove(distance, motors);
   
   // Update motor power
     analogWrite(motorPin1, motors.h);
