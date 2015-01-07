@@ -37,8 +37,9 @@ void setup(){
     motors.h = 191;
 }
 
-struct motorControl nextMove(struct sensorInput input, struct motorControl motorState){
+struct motorControl nextMove(struct sensorInput distance, struct motorControl motorState){
 
+//distance.up; distance.down; etc...
   // This is the only place where the motorControl should be changed.
   
   motorState.h++;
@@ -47,13 +48,13 @@ struct motorControl nextMove(struct sensorInput input, struct motorControl motor
 }
 
 void loop(){
-    struct sensorInput si;
+    struct sensorInput distance;
     
     // get the sensor readings and save them to si (sensorInput)
-    si.up = 30;
-    si.left = 30;
-    si.down = 30;
-    si.right = 30;
+    distance.up = 30;
+    distance.left = 30;
+    distance.down = 30;
+    distance.right = 30;
     
     // get the next move, i.e. the new motor settings
     motors = nextMove(si, motors);
