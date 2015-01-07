@@ -1,8 +1,9 @@
 //NORTH, EAST, SOUTH, AND WEST are keywords for directions, to avoid confusion with integers.
-#define NORTH 1
-#define EAST 2
-#define SOUTH 3
-#define WEST 4
+// These numbers must be 0,1,..., etc...
+#define NORTH 0
+#define EAST 1
+#define SOUTH 2
+#define WEST 3
 
 // motorControl and sensorInput are structures that store data about motors and sensors.
 // Do not modify these here. Scroll down.
