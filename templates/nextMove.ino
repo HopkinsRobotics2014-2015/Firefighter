@@ -15,10 +15,10 @@ struct sensorInput {
 
 // Actual program starts below:
 
-int sensor1 = 1;
-int sensor2 = 2;
-int sensor3 = 3;
-int sensor4 = 4;
+int input1 = 1;
+int input2 = 2;
+int input3 = 3;
+int input4 = 4;
 
 int motorPin1; // horizontal
 int motorPin2; // vertical
@@ -26,10 +26,10 @@ int motorPin2; // vertical
 struct motorControl motors;
 
 void setup(){
-    pinMode(sensor1, INPUT);
-    pinMode(sensor2, INPUT);
-    pinMode(sensor3, INPUT);
-    pinMode(sensor4, INPUT);
+    pinMode(input1, INPUT);
+    pinMode(input2, INPUT);
+    pinMode(input3, INPUT);
+    pinMode(input4, INPUT);
     Serial.begin(9600);
   
   // Initialize motor state:
