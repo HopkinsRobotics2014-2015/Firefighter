@@ -7,10 +7,10 @@ struct motorControl {
 };
 
 struct sensorInput {
-  int up;
-  int left;
-  int down;
-  int right;
+  int north;
+  int east;
+  int south;
+  int west;
 };
 
 // Actual program starts below:
@@ -39,9 +39,8 @@ void setup(){
 
 struct motorControl nextMove(struct sensorInput distance, struct motorControl motorState){
 
-//distance.up; distance.down; etc...
-  // This is the only place where the motorControl should be changed.
-  
+ //distance.north; distance.south; etc...
+
   motorState.h++;
   
   return motorState;
@@ -51,10 +50,10 @@ void loop(){
     struct sensorInput distance;
     
     // get the sensor readings and save them to the distance variable (sensorInput)
-    distance.up = 30;
-    distance.left = 30;
-    distance.down = 30;
-    distance.right = 30;
+    distance.north = 30;
+    distance.west = 30;
+    distance.south = 30;
+    distance.east = 30;
     
     // get the next move, i.e. the new motor settings
     motors = nextMove(distance, motors);
