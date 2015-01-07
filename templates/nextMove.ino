@@ -50,7 +50,7 @@ struct motorControl nextMove(struct sensorInput distance, struct motorControl mo
 void loop(){
     struct sensorInput distance;
     
-    // get the sensor readings and save them to si (sensorInput)
+    // get the sensor readings and save them to the distance variable (sensorInput)
     distance.up = 30;
     distance.left = 30;
     distance.down = 30;
