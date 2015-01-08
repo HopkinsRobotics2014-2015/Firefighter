@@ -37,6 +37,8 @@ void setup(){
     pinMode(input2, INPUT);
     pinMode(input3, INPUT);
     pinMode(input4, INPUT);
+    pinMode(motorPin1, OUTPUT);
+    pinMode(motorPin2, OUTPUT);
     Serial.begin(9600);
   
   // Initialize motor state:
