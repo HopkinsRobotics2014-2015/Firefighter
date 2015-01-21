@@ -1,3 +1,7 @@
+#include "map1.h"
+#include "map2.h"
+#include "map3.h"
+
 //NORTH, EAST, SOUTH, AND WEST are keywords for directions, to avoid confusion with integers.
 // These numbers must be 0,1,..., etc...
 #define NORTH 0
