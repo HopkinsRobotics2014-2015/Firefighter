@@ -1,19 +1,24 @@
 import java.util.Arrays;
+import java.util.ArrayList;
 public class Particle_Filter{
     long startTime = System.nanoTime();
     int numParticles = 1024;
     public Particle[] working_set_particles = new Particle[numParticles];
     private Particle[] resampled_Particles = new Particle[numParticles];
     double measurementNoise = 5;
-    int current_map = 1;
-    double[] long_term_mapCount = {0,0,0,0,0,0,0}; // no dog, map1, map2, map3, dog1, dog2, dog3
+    int current_map = 3;
+    double[] long_term_mapCount = {0,0,0,0,0,0,0,0,0,0,0,0};
     int mapCountIterations = 0;
-    double[] map_probabilities = {(1.0/3.0), (1.0/3.0), (1.0/3.0)};
-    double[] dog_probabilities = {0.25, 0.25, 0.25, 0.25};
+    double[] map_probabilities = {(1.0/12.0), (1.0/12.0), (1.0/12.0), (1.0/12.0), (1.0/12.0), (1.0/12.0), (1.0/12.0), (1.0/12.0), (1.0/12.0), (1.0/12.0), (1.0/12.0), (1.0/12.0)};
+    ArrayList<Integer> possibilities; // this will help eliminate options we decide are impossible
     Maps maps = new Maps();
     
     public Particle_Filter(){
-        createParticles();
+        createParticles( new Point (100,25) );
+    }
+    
+    public Particle_Filter(int startx, int starty){
+        createParticles( new Point (startx,starty) );
     }
     
     public void process(sensorInput distance, motorControl motors){
@@ -68,35 +73,40 @@ public class Particle_Filter{
         return( mu + y1 * sigma );   
     }
     
-    private void createParticles(){
+    private void createParticles(Point centerPos){
+        possibilities = new ArrayList<Integer>();
+        for (int i = 0; i < map_probabilities.length; i++){
+            possibilities.add(i);
+        }
         for (int i = 0; i < numParticles; i++){
             working_set_particles[i] = new Particle();
-            working_set_particles[i].x = (int) Math.floor(Math.random() * 244);
-            working_set_particles[i].y = (int) Math.floor(Math.random() * 244);
-            working_set_particles[i].orientation = 0;//Math.random() * 2 * Math.PI;
+            working_set_particles[i].x = (int) Math.floor(random_Gaussian(centerPos.x, 122)); // within half an arena of the expected position
+            working_set_particles[i].y = (int) Math.floor(random_Gaussian(centerPos.y, 122));
+            working_set_particles[i].orientation = Math.random() * 2 * Math.PI;
             working_set_particles[i].w = 1.0f / (double) numParticles; // each particle is equally likely at first.
-            working_set_particles[i].map = (int) Math.floor( 1 + Math.random() * 3 );
-            working_set_particles[i].dog = (4 + (int) Math.floor(Math.random() * 4)) % 7;
+            working_set_particles[i].map = (int) Math.floor(Math.random() * 12);
             resampled_Particles[i] = new Particle();
             resampled_Particles[i].x = working_set_particles[i].x;
             resampled_Particles[i].y = working_set_particles[i].y;
             resampled_Particles[i].orientation = working_set_particles[i].orientation;
             resampled_Particles[i].w = working_set_particles[i].w;
             resampled_Particles[i].map = working_set_particles[i].map;
-            resampled_Particles[i].dog = working_set_particles[i].dog;
         }
     }
 
     int pmillis = millis();
     void moveParticles(motorControl m){        
         int i = 0;
-        double fullPowerDistanceX = 0;//(millis()-pmillis)*(motorControl.cmpsH/1000.0); // average full power speed of 11cm per second
-        double fullPowerDistanceY = 0;//(millis()-pmillis)*(motorControl.cmpsV/1000.0);  // average full power speed of 11 cm per second.
+        double fullPowerDistanceX = (millis()-pmillis)*(motorControl.cmpsH/1000.0); // average full power speed of 11cm per second
+        double fullPowerDistanceY = (millis()-pmillis)*(motorControl.cmpsV/1000.0);  // average full power speed of 11 cm per second.
         for (i = 0; i < numParticles; i++){
             int x_change = (int) Math.floor(random_Gaussian(motorControl.getPercentageFromMotorPower(m.h) * fullPowerDistanceX, motorControl.motorNoise));
             int y_change = (int) Math.floor(random_Gaussian(motorControl.getPercentageFromMotorPower(m.v) * fullPowerDistanceY, motorControl.motorNoise));
             working_set_particles[i].x += x_change;
             working_set_particles[i].y += y_change;
+            double x_prob = Gaussian(motorControl.getPercentageFromMotorPower(m.h) * fullPowerDistanceX, motorControl.motorNoise, x_change);
+            double y_prob = Gaussian(motorControl.getPercentageFromMotorPower(m.v) * fullPowerDistanceY, motorControl.motorNoise, y_change);
+            working_set_particles[i].w *= 0.5 * (x_prob + y_prob);
         }
         pmillis = millis();
     }
@@ -107,9 +117,8 @@ public class Particle_Filter{
         for (int i = 0; i < numParticles; i++){
 
             double w = 1.0;
-            sensorInput expectedMeasurements = maps.getExpectedMeasurements(working_set_particles[i].x, working_set_particles[i].y, working_set_particles[i].orientation, working_set_particles[i].map, working_set_particles[i].dog);
-            //System.out.println(working_set_particles[i].x + " " + working_set_particles[i].y + " " + working_set_particles[i].orientation + " " + working_set_particles[i].map + " " + working_set_particles[i].dog);
-            //System.out.println(expectedMeasurements);
+            sensorInput expectedMeasurements = maps.getExpectedMeasurements(working_set_particles[i].x, working_set_particles[i].y, working_set_particles[i].orientation, working_set_particles[i].map);
+            
             int dir = 0;
             for (dir = 0; dir < 4; dir++){
                 int meas = distance.get[dir];
@@ -118,7 +127,7 @@ public class Particle_Filter{
                 w *= change;
             }
             if (w > max) max = w;
-            working_set_particles[i].w = w; // should be *=
+            working_set_particles[i].w = w; // changed to *= to include conditional probability, but it works better with = for some reason.
         }
     }
 
@@ -155,11 +164,10 @@ public class Particle_Filter{
         int index = (int) Math.floor(Math.random() * numParticles);
         double beta = 0;
 
-        int[] mapCount = {0,0,0,0,0,0,0};
+        int[] mapCount = {0,0,0,0,0,0,0,0,0,0,0,0};
         double sumX = 0;
         double sumY = 0;
-        int i = 0;
-        for (i = 0; i < numParticles; i++){
+        for (int i = 0; i < numParticles; i++){
             beta += Math.random() * 2 * wmax;
             while (working_set_particles[index].w < beta){
                 beta -= working_set_particles[index].w;
@@ -173,10 +181,8 @@ public class Particle_Filter{
             resampled_Particles[i].w = 1.0 / (double) numParticles;
             resampled_Particles[i].orientation = working_set_particles[index].orientation;
             //resampled_Particles[i].map = 1 + ((int) random_Gaussian(current_map + 2, 0.5)) % 3; // favor current map
-            resampled_Particles[i].map = (int) Math.floor(Math.random() * 3 + 1);
-            //resampled_Particles[i].dog = should this randomize?
+            resampled_Particles[i].map = possibilities.get((int) Math.floor(Math.random() * possibilities.size())); // pick a random map out of those that are still possibilities
             mapCount[working_set_particles[index].map]++;
-            mapCount[working_set_particles[index].dog]++;
             sumX += resampled_Particles[i].x;
             sumY += resampled_Particles[i].y;
         }
@@ -186,29 +192,22 @@ public class Particle_Filter{
         working_set_particles = resampled_Particles;
         resampled_Particles = c;
 
-        for (i = 0; i < mapCount.length; i++){
+        for (int i = 0; i < mapCount.length; i++){
             long_term_mapCount[i] += mapCount[i];
         }
         mapCountIterations += numParticles;
 
-        //System.out.println(maxInd + 1 + " " + maxVal);
-
         int maxInd = 0;
         double maxVal = 0;
-        for (i = 0; i < map_probabilities.length; i++){
-            map_probabilities[i] = long_term_mapCount[i+1] / (double) mapCountIterations;
+        for (int i = 0; i < map_probabilities.length; i++){
+            map_probabilities[i] = long_term_mapCount[i] / (double) mapCountIterations;
             if (map_probabilities[i] > maxVal){
                 maxInd = i;
                 maxVal = map_probabilities[i];
             }
         }
-        dog_probabilities[0] = long_term_mapCount[0] / (double) mapCountIterations;
-        dog_probabilities[1] = long_term_mapCount[4] / (double) mapCountIterations;
-        dog_probabilities[2] = long_term_mapCount[5] / (double) mapCountIterations;
-        dog_probabilities[3] = long_term_mapCount[6] / (double) mapCountIterations;
         
-
-        current_map = maxInd + 1;
-        System.out.println(1 + " " + Math.floor(map_probabilities[0] * 1000)/10.0 + "%   " + 2 + " " + Math.floor(map_probabilities[1] * 1000)/10.0 + "%   " + 3 + " " + Math.floor(map_probabilities[2] * 1000)/10.0 + "%     " + (maxInd+1) + " dog: " + Arrays.toString(dog_probabilities) + "    avgX: " + (int) (sumX / numParticles) + "     avgY: " + (int) (sumY / numParticles));
+        current_map = maxInd;
+        System.out.println(current_map + " " + Arrays.toString(map_probabilities));
     }
 }

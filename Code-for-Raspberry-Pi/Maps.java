@@ -10,15 +10,31 @@ class Maps {
     final static int EAST = 1;
     final static int SOUTH = 2;
     final static int WEST = 3;
-    final static int MAP1 = 1;
-    final static int MAP2 = 2;
-    final static int MAP3 = 3;
-    final static int DOG1 = 4;
-    final static int DOG2 = 5;
-    final static int DOG3 = 6;
-    final static int[] all_maps = {MAP1, MAP2, MAP3};
+    final static int[] all_maps = {0,1,2,3,4,5,6,7,8,9,10,11};
     final static int MAXDISTANCE = 345;
     final static int ROBOT_RADIUS = 16;
+    
+    /*
+    
+    Maps work like this:
+    
+    Map#    Layout  Dog Position
+    0       1       0
+    1       2       0
+    2       3       0
+    3       1       1
+    4       2       1 
+    5       3       1 
+    6       1       2
+    7       2       2 
+    8       3       2
+    9       1       3
+    10      2       3
+    11      3       3
+    
+    If we are sure that there is no dog, we will use only maps 3-11.
+   
+    */
     
     static int[][] wall_coordinates = {
         {0, 0,0,244,0}, // outer wall
@@ -26,51 +42,35 @@ class Maps {
         {0, 0,0,0,244}, // outer wall
         {0, 244,0,244,244}, // outer wall
             
-        {5, 124,15,124,30,        DOG1   }, // dog1
+        {5, 124,15,124,30,        3, 4, 5   }, // dog1
             
-        {4, 122,46,142,46},
+        {4, 122,46,142,46}, // no map specification means allmaps.
             
-        {4, 142, 46, 197, 46,     1, 2   }, // map1, map2
+        {4, 142, 46, 197, 46,     0, 1, 3, 4, 6, 7, 9, 10   }, // map1, map2
             
         {4, 122,46,122,100},
         {4, 197,46,197,100},
             
-        {5, 211,68,230,68,        DOG2}, // dog2
+        {5, 211,68,230,68,        6,7,8}, // dog2
             
         {3, 46,88,72,88},
             
-        {4, 122, 100, 164, 100,   3}, // map3
+        {4, 122, 100, 164, 100,   2,5,8,11}, // map3
             
         {4, 164,100,197,100},
             
-        {5, 122,110,122,142,      DOG3}, // dog3
+        {5, 122,110,122,142,      9,10,11}, // dog3
             
         {2, 0,140,72,140},
         {2, 72,140,72,197},
         {1, 125,152,197,152},
             
-        {1, 125, 152, 125, 198,   2   }, // map2
-        {1, 125, 198, 125, 244,   1, 3}, // map1, map3
+        {1, 125, 152, 125, 198,   1,4,7,10}, // map2
+        {1, 125, 198, 125, 244,   0,2,3,5,6,8,9,11}, // map1, map3
             
         {0, 0,244,244,244} // outer wall
     };
     
-    static int[][] wall_coordinates_v = {
-        {4, 142, 46, 197, 46,     3   }, // map3
-        {4, 122, 100, 164, 100,   1, 2}, // map1, map2
-        {1, 125, 152, 125, 198,   2   }, // map2
-        {1, 125, 198, 125, 244,   1, 3} // map1, map3
-    };
-    
-    static int[][] dog_coordinates = {
-        {5, 124,15,124,30}, // dog1
-        {5, 122,110,122,142}, // dog2
-        {5, 211,68,230,68} // dog3
-    };
-    
-    static Wall[] walls_sorted_vertically;
-    static Wall[] walls_sorted_horizontally;
-
     public Maps(){
         createWalls();
     }
@@ -195,21 +195,20 @@ class Maps {
         Arrays.sort(horizontal_walls, Wall.Vertically);
     }
     
-    public static sensorInput getExpectedMeasurements(double _x, double _y, double heading_offset, int map, int dog){
-        //struct
+    public static sensorInput getExpectedMeasurements(double _x, double _y, double heading_offset, int map){
         sensorInput distance = new sensorInput();
                 
         double heading = 0.5 * Math.PI + heading_offset; // up relative to the robot
-        distance.north = (int) Math.round(getNearestWallDistance(_x, _y, heading, map, dog)) - ROBOT_RADIUS;
+        distance.north = (int) Math.round(getNearestWallDistance(_x, _y, heading, map)) - ROBOT_RADIUS;
                 
         heading = heading_offset; // right relative to the robot
-        distance.east = (int) Math.round(getNearestWallDistance(_x, _y, heading, map, dog)) - ROBOT_RADIUS;
+        distance.east = (int) Math.round(getNearestWallDistance(_x, _y, heading, map)) - ROBOT_RADIUS;
                 
         heading = 1.5 * Math.PI + heading_offset;
-        distance.south = (int) Math.round(getNearestWallDistance(_x, _y, heading, map, dog)) - ROBOT_RADIUS;
+        distance.south = (int) Math.round(getNearestWallDistance(_x, _y, heading, map)) - ROBOT_RADIUS;
                 
         heading = Math.PI + heading_offset;
-        distance.west = (int) Math.round(getNearestWallDistance(_x, _y, heading, map, dog)) - ROBOT_RADIUS;
+        distance.west = (int) Math.round(getNearestWallDistance(_x, _y, heading, map)) - ROBOT_RADIUS;
         
         distance.get[NORTH] = distance.north;
         distance.get[EAST] = distance.east;
@@ -219,7 +218,7 @@ class Maps {
         return distance;
     }
     
-    private static double getNearestWallDistance(double _x, double _y, double heading, int map, int dog){
+    private static double getNearestWallDistance(double _x, double _y, double heading, int map){
         double cos = Math.cos(heading);
         double sin = -Math.sin(heading);
         
@@ -236,7 +235,7 @@ class Maps {
         double horizontal_distance = MAXDISTANCE;
         double dist = 0.0;
         for (Wall w : horizontal_walls){
-            if (visible(w, map, dog)){
+            if (visible(w, map)){
                 dist = getDistanceToIntersection(mySensor, w);
                 if (dist > 0 && dist < horizontal_distance){
                     horizontal_distance = dist;
@@ -247,7 +246,7 @@ class Maps {
         double vertical_distance = MAXDISTANCE;
         dist = 0.0;
         for (Wall w : vertical_walls){
-            if (visible(w, map, dog)){
+            if (visible(w, map)){
                 dist = getDistanceToIntersection(mySensor, w);
                 if (dist > 0 && dist < vertical_distance){
                     vertical_distance = dist;
@@ -258,10 +257,10 @@ class Maps {
         return Math.min(vertical_distance, horizontal_distance);
     }
     
-    private static boolean visible(Wall wall, int map, int dog){
+    private static boolean visible(Wall wall, int map){
         
         for (int m : wall.maps){
-            if (m == map || m == dog){
+            if (m == map){
                 return true;
             }
         }

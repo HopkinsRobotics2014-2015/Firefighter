@@ -126,7 +126,6 @@ public class ArduinoSerialConnection implements SerialPortEventListener {
 
     //
     // Handle serial port event
-    int idat = 0;
     public synchronized void serialEvent(SerialPortEvent oEvent) {
         //System.out.println("Event received: " + oEvent.toString());
         try {
