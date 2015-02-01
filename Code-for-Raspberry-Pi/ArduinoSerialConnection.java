@@ -14,6 +14,8 @@ import java.util.Enumeration;
 public class ArduinoSerialConnection implements SerialPortEventListener {
     SerialPort serialPort = null;
 
+    private String message;
+    
     private static final String PORT_NAMES[] = { 
 //        "/dev/tty.usbmodem", // Mac OS X
 //        "/dev/usbdev", // Linux
@@ -86,6 +88,18 @@ public class ArduinoSerialConnection implements SerialPortEventListener {
         return false;
     }
     
+    public void setMessage(String newMessage){
+        this.message = newMessage;
+    }
+    
+    public String getMessage(){
+        return this.message;
+    }
+    
+    public void appendToMessage(String additionalMessage){
+        this.message += additionalMessage;
+    }
+    
     private void sendData(String data) {
         try {
             System.out.println("Sending data: '" + data +"'");
@@ -125,9 +139,7 @@ public class ArduinoSerialConnection implements SerialPortEventListener {
                     }
                     String inputLine = "Arduino Sent: " + input.readLine();
                     System.out.println(inputLine);
-                    String dataToSend = "Hello World " + idat + "\n" + "Second Line\n";
-                    idat++;
-                    this.sendData(dataToSend);
+                    this.sendData(this.message);
                     break;
 
                 default:
@@ -139,15 +151,15 @@ public class ArduinoSerialConnection implements SerialPortEventListener {
         }
     }
 
-    public ArduinoTest1() {
+    public ArduinoSerialConnection() {
         appName = getClass().getName();
     }
     
     public static void main(String[] args) throws Exception {
-        ArduinoTest1 test = new ArduinoTest1();
+        ArduinoSerialConnection test = new ArduinoSerialConnection();
         if ( test.initialize() ) {
             //test.sendData("y");
-            //try { Thread.sleep(2000); } catch (InterruptedException ie) {}
+            try { Thread.sleep(15000); } catch (InterruptedException ie) {} // delete this line later. it closes the connection after 15 seconds. (useful for debugging)
             //test.sendData("n");
             //try { Thread.sleep(2000); } catch (InterruptedException ie) {}
             test.close();
