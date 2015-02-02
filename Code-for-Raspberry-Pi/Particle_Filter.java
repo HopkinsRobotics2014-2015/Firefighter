@@ -21,10 +21,10 @@ public class Particle_Filter{
         createParticles( new Point (startx,starty) );
     }
     
-    public void process(sensorInput distance, motorControl motors){
+    public Particle process(sensorInput distance, motorControl motors){
         moveParticles(motors);
         updateMeasurementProbability(distance);
-        resample();
+        return resample();
     }
     
     static class Particle {
@@ -131,7 +131,7 @@ public class Particle_Filter{
         }
     }
 
-    private double normalizeWeights(){    
+    private Particle normalizeWeights(){    
         /* Get the sum of all the particle weights */
         double sum = 0.0;
         double max1 = 0.0;
@@ -143,24 +143,26 @@ public class Particle_Filter{
 
         /* Divide each particle weight by the sum, so their total will add to 1.0 */
         double max2 = 0.0;
+        int maxInd2 = 0;
         for (i = 0; i < numParticles; i++){
             if (working_set_particles[i].w > max1) { // Double check that each particle, is in fact less than the maximum
                 System.out.println("GREATER THAN MAX          " + working_set_particles[i].w + " > " + max1 + " " + i);
                 //break;
             } 
             working_set_particles[i].w = working_set_particles[i].w/sum;
-            if (working_set_particles[i].w > max2){ max2 = working_set_particles[i].w; } 
+            if (working_set_particles[i].w > max2){ max2 = working_set_particles[i].w; maxInd2 = i;} 
         }
         double sum2 = 0.0;
         for (i = 0; i < numParticles; i++){
             sum2 += working_set_particles[i].w;
         }
-        return max2;
+        return working_set_particles[maxInd2];
     }
 
-    private void resample(){
+    private Particle resample(){
     //System.out.println("resampling...");
-        double wmax = normalizeWeights();
+        Particle maxParticle = normalizeWeights(); // the most likely position of the robot.
+        double wmax = maxParticle.w;
         int index = (int) Math.floor(Math.random() * numParticles);
         double beta = 0;
 
@@ -208,6 +210,12 @@ public class Particle_Filter{
         }
         
         current_map = maxInd;
-        System.out.println(current_map + " " + Arrays.toString(map_probabilities));
+        maxParticle.map = current_map; // maybe we should be more explicit in our assumptions.
+        // i.e. favor the maps without dogs until we run into one, or something like that.
+        System.out.print(current_map + " ");
+        for (double prob : map_probabilities){
+            System.out.print(Math.floor(10000*prob)/100.0 + " ");
+        }
+        return maxParticle;
     }
 }
