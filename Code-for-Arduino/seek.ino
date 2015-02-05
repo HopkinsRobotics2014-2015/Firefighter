@@ -1,83 +1,106 @@
-int echoOut1
-int echoIn1
+#include "Streaming.h"
+
+int echoOutF
+int echoInF
+
+int echoOutB
+int echoInB
+
+int echoOutL
+int echoInL
+
+int echoOutR
+int echoInR
 
 void setup()
 {
 
 Serial.begin(9600);
 pinMode(led, OUTPUT);
-pinMode(inputPin, INPUT);
-pinMode(outputPin, OUTPUT); 
+
+pinMode(echoInF, INPUT);
+pinMode(echoOutF, OUTPUT); 
+
+pinMode(echoInB, INPUT);
+pinMode(echoOutB, OUTPUT); 
+
+pinMode(echoInL, INPUT);
+pinMode(echoOutL, OUTPUT); 
+
+pinMode(echoInR, INPUT);
+pinMode(echoOutR, OUTPUT); 
 
 }
 
 void loop()
 }
 
-int north = getUltrasonicN();
-int south = getUltrasonicS();
-int east = getUltrasonicE();
-int west = getUltrasonicW();
+int north = getUltrasonicF();
+int south = getUltrasonicB();
+int east = getUltrasonicL();
+int west = getUltrasonicR();
+
+Serial << north << " " << south << " " << east << " " << west << endl; 
 
 }
 
-int getUltrasonicN()
+int getUltrasonicF()
 {
 
-  digitalWrite(echoOut, LOW);
+  digitalWrite(echoOutF, LOW);
   delay(2);
-  digitalWrite(echoOut, HIGH);
+  digitalWrite(echoOutF, HIGH);
   delay(10);
-  digitalWrite(echoOut, LOW);
-  int distance = pulseIn(echoIn, HIGH);
-  float distanceN = distance/57.355; //cm
+  digitalWrite(echoOutF, LOW);
+  int distanceF = pulseIn(echoInF, HIGH)/57.355;
+  //float distanceF = distance/57.355; //cm
   
-  return distanceN;
+  return distanceF;
 
 }
 
-int getUltrasonicS()
+int getUltrasonicB()
 {
 
-  digitalWrite(echoOut, LOW);
+  digitalWrite(echoOutB, LOW);
   delay(2);
-  digitalWrite(echoOut, HIGH);
+  digitalWrite(echoOutB, HIGH);
   delay(10);
-  digitalWrite(echoOut, LOW);
-  int distance = pulseIn(echoIn, HIGH);
-  float distanceS = distance/57.355; //cm
+  digitalWrite(echoOutB, LOW);
+  int distanceB = pulseIn(echoInB, HIGH)/57.355;
+  //float distanceB = distance/57.355; //cm
   
-  return distanceS;
+  return distanceB;
 
 }
 
-int getUltrasonicE()
+int getUltrasonicL()
 {
 
-  digitalWrite(echoOut, LOW);
+  digitalWrite(echoOutL, LOW);
   delay(2);
-  digitalWrite(echoOut, HIGH);
+  digitalWrite(echoOutL, HIGH);
   delay(10);
-  digitalWrite(echoOut, LOW);
-  int distance = pulseIn(echoIn, HIGH);
-  float distanceE = distance/57.355; //cm
+  digitalWrite(echoOutL, LOW);
+  int distanceL = pulseIn(echoInL, HIGH)/57.355;
+ // float distanceE = distance/57.355; //cm
   
-  return distanceE;
+  return distanceL;
 
 }
 
-int getUltrasonicW()
+int getUltrasonicR()
 {
 
-  digitalWrite(echoOut, LOW);
+  digitalWrite(echoOutR, LOW);
   delay(2);
-  digitalWrite(echoOut, HIGH);
+  digitalWrite(echoOutR, HIGH);
   delay(10);
-  digitalWrite(echoOut, LOW);
-  int distance = pulseIn(echoIn, HIGH);
-  float distanceW = distance/57.355; //cm
+  digitalWrite(echoOutR, LOW);
+  int distanceR = pulseIn(echoInR, HIGH)/57.355;
+  //float distanceW = distance/57.355; //cm
   
-  return distanceW;
+  return distanceR;
 
 
 }
