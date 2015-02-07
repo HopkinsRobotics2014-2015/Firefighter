@@ -7,6 +7,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Enumeration;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * @author ericjbruno @author mattdailis
@@ -14,7 +16,11 @@ import java.util.Enumeration;
 public class ArduinoSerialConnection implements SerialPortEventListener {
     SerialPort serialPort = null;
 
-    private String message;
+    private String message = "ok\n";
+    public String[] CommunicationTags = {"NORTH", "SOUTH", "EAST", "WEST"};
+    // Most-recent-data will be updated whenever we receive data from the Arduino
+    private Map<String, Integer> most_recent_data = new HashMap<String, Integer>();
+    private boolean connected = false;
     
     private static final String PORT_NAMES[] = { 
 //        "/dev/tty.usbmodem", // Mac OS X
@@ -32,7 +38,7 @@ public class ArduinoSerialConnection implements SerialPortEventListener {
     private OutputStream output;
     
     private static final int TIME_OUT = 1000; // Port open timeout
-    private static final int DATA_RATE = 115200;//9600; // Arduino serial port
+    private static final int DATA_RATE = 9600;//115200;//9600; // Arduino serial port
 
     public boolean initialize() {
         try {
@@ -100,7 +106,7 @@ public class ArduinoSerialConnection implements SerialPortEventListener {
         this.message += additionalMessage;
     }
     
-    private void sendData(String data) {
+    public void sendData(String data) {
         try {
             System.out.println("Sending data: '" + data +"'");
             
@@ -136,8 +142,25 @@ public class ArduinoSerialConnection implements SerialPortEventListener {
                             new InputStreamReader(
                                     serialPort.getInputStream()));
                     }
-                    String inputLine = "Arduino Sent: " + input.readLine();
-                    System.out.println(inputLine);
+                    String inputLine = input.readLine();
+                    connected = true;
+                    //System.out.println("Arduino Sent: " + inputLine);
+                    
+                    String[] chunks = inputLine.split(";");
+                    
+                    for (String chunk : chunks){
+                        String[] tokens = chunk.trim().split(" ");
+                        if (tokens.length == 2){
+                            String key = tokens[0];
+                            int val = Integer.parseInt(tokens[1]);
+                            if (val > 0){
+                              most_recent_data.put(key, val); 
+                            }
+                        } else {
+                            System.out.println("Bad Token" + tokens[0]);
+                        }
+                    }
+                    
                     this.sendData(this.message);
                     break;
 
@@ -149,23 +172,27 @@ public class ArduinoSerialConnection implements SerialPortEventListener {
             System.err.println(e.toString());
         }
     }
+        
+    public Map getMostRecentData(){
+        return most_recent_data;
+    }
 
+    /** Constructor **/
     public ArduinoSerialConnection() {
         appName = getClass().getName();
+        
+        // Initialize most_recent_data HashMap
+        for (String tag : CommunicationTags){
+            most_recent_data.put(tag, null);
+        }
+        
     }
     
-    public static void main(String[] args) throws Exception {
-        ArduinoSerialConnection test = new ArduinoSerialConnection();
-        if ( test.initialize() ) {
-            //test.sendData("y");
-            try { Thread.sleep(15000); } catch (InterruptedException ie) {} // delete this line later. it closes the connection after 15 seconds. (useful for debugging)
-            //test.sendData("n");
-            //try { Thread.sleep(2000); } catch (InterruptedException ie) {}
-            test.close();
+    public void establishConnection(){
+        while (!connected){
+            sendData("hello;");
+            try { Thread.sleep(300); } catch (InterruptedException ie) {}
         }
-
-        // Wait 5 seconds then shutdown
-        try { Thread.sleep(2000); } catch (InterruptedException ie) {}
     }
 }
 

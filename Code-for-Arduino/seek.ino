@@ -67,7 +67,7 @@ void loop()
     }
   } else if (millis() - pmillis1 > messageInterval) {
 //      Serial << period << " " <<  blinkrate << endl;
-      Serial << "NORTH" << north << ';' << endl;//" " << south << " " << east << " " << west << endl; 
+      Serial << "NORTH" << " " << north << ';' << endl;//" " << south << " " << east << " " << west << endl; 
 
       pmillis1 = millis();
       //Blink();
@@ -78,7 +78,7 @@ void loop()
 //int east = getUltrasonicL();
 //int west = getUltrasonicR();
 north = getUltrasonicF();
-
+Blink();
 }
 
 void process(String key, String val){
@@ -89,6 +89,28 @@ void process(String key, String val){
   }
 }
 
+void Blink(){
+  static unsigned long int pmillis2 = millis();
+  if (blinkrate > 0){
+    if (millis() - pmillis2 >= (0.5 * period/blinkrate)){
+      toggleLed();
+      pmillis2 = millis(); 
+    }
+  } else {
+    digitalWrite(ledPin, LOW);
+  }
+}
+
+void toggleLed(){
+  static int i = 0;
+  if (i == 0){
+    digitalWrite(ledPin, HIGH);
+    i = 1;
+  } else {
+    digitalWrite(ledPin, LOW);
+    i = 0;
+  }
+}
 
 int getUltrasonicF(){
 
