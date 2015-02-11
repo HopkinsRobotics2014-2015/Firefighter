@@ -1,58 +1,89 @@
 class Navigator{
+    private Checkpoint[] checkpoints;
     public Navigator(){
-        
+        checkpoints = new Checkpoint[17];
+        checkpoints[0] = new Checkpoint (23, 42);
+        checkpoints[1] = new Checkpoint (23, 114);
+        checkpoints[2] = new Checkpoint (23, 166);
+        checkpoints[3] = new Checkpoint (23, 221);
+        checkpoints[4] = new Checkpoint (97, 23);
+        checkpoints[5] = new Checkpoint (97, 114);
+        checkpoints[6] = new Checkpoint (97, 175);
+        checkpoints[7] = new Checkpoint (97, 221);
+        checkpoints[8] = new Checkpoint (143, 73);
+        checkpoints[9] = new Checkpoint (143, 114);
+        checkpoints[10] = new Checkpoint (150, 175);
+        checkpoints[11] = new Checkpoint (150, 221);
+        checkpoints[12] = new Checkpoint (169, 23);
+        checkpoints[13] = new Checkpoint (169, 73);
+        checkpoints[14] = new Checkpoint (220, 23);
+        checkpoints[15] = new Checkpoint (220, 114);
+        checkpoints[16] = new Checkpoint (220, 221);
     }
     
-    private class Node {
+    private class Checkpoint {
         int x,y;
         float f,g,h;
-        Node next;
-        ArrayList<Node> neighbors;
-        public Node(int _x, int _y){
+        Checkpoint next;
+        ArrayList<Checkpoint> neighbors;
+        public Checkpoint(int _x, int _y){
             this.x = _x;
             this.y = _y;
             this.f = Float.POSITIVE_INFINITY;
             this.g = 0;
             this.h = 0;
-            this.neighbors = new ArrayList<Node>();
+            this.neighbors = new ArrayList<Checkpoint>();
         }
         
+        // must be a neighbor. can take into account carpets
+        float getCost(Node n){
+          if (neighbors.contains(n)){
+            return (n.x - x) * (n.x - x) + (n.y - y) * (n.y - y);
+          } else {
+            println("Cannot get cost: no connection between nodes");
+            exit();
+          }
+          return 0.0f;
+        }
+        
+        // does not require it to be a neighbor
+        float getStraightLineDistance(Node n){
+          return (n.x - x) * (n.x - x) + (n.y - y) * (n.y - y);
+        }
     }
-    
-    getPath(start, end, map)?
-    
-    void ASTAR(Node startNode, Node endNode){
-      ArrayList<Node> open = new ArrayList<Node>();
-      ArrayList<Node> closed = new ArrayList<Node>();
+        
+    void ASTAR(Checkpoint startCheckpoint, Checkpoint endCheckpoint){
+      ArrayList<Checkpoint> open = new ArrayList<Checkpoint>();
+      ArrayList<Checkpoint> closed = new ArrayList<Checkpoint>();
       
       boolean foundPath = false;
       
-      Node q = endNode;
-      q.f = 0;
-      q.g = 0;
+      Checkpoint q = endCheckpoint;
+      q.f = 0f;
+      q.g = 0f;
       
       open.add(q);
       
       while (!open.isEmpty()){
         
         float minf = Float.POSITIVE_INFINITY;
-        for (Node n : open){
+        for (Checkpoint n : open){
           if (n.f < minf){
             q = n;
             minf = n.f;
           }
         }
         
-        if (q == startNode){
+        if (q == startCheckpoint){
           foundPath = true;
           break;
         }
         
         open.remove(q);
         
-        for (Node neighbor : q.neighbors){
+        for (Checkpoint neighbor : q.neighbors){
           float g = q.g + q.getCost(neighbor);
-          float h = neighbor.getStraightLineDistance(startNode);
+          float h = neighbor.getStraightLineDistance(startCheckpoint);
           float f = g + h;
           
           if (f < neighbor.f){
@@ -69,7 +100,260 @@ class Navigator{
         
         closed.add(q);
       }
-    
+}
+
+void setNeighbors(int map) {
+
+  for (Checkpoint cp : checkpoints) {
+    cp.neighbors.clear();
+    cp.next = null;
+    cp.f = Float.POSITIVE_INFINITY;
+    cp.g = 0;
+    cp.h = 0;
+  }
+
+  switch (map) {
+    // Map 1 No Dog
+  case 0:
+    link(1, 2);
+    link(2, 6);
+    link(3, 4);
+    link(4, 8);
+    link(5, 6);
+    link(5, 13);
+    link(6, 7);
+    link(6, 10);
+    link(7, 8);
+    link(7, 11);
+    link(9, 10);
+    link(9, 14);
+    link(10, 16);
+    link(11, 12);
+    link(12, 17);
+    link(13, 15);
+    link(15, 16);
+    link(16, 17);
+    break;
+  case 1: // Map Two no dog
+    link(1, 2);
+    link(2, 6);
+    link(3, 4);
+    link(4, 8);
+    link(5, 6);
+    link(5, 13);
+    link(6, 7);
+    link(6, 10);
+    link(7, 8);
+    link(8, 12);
+    link(9, 10);
+    link(9, 14);
+    link(10, 16);
+    link(11, 12);
+    link(12, 17);
+    link(13, 15);
+    link(15, 16);
+    link(16, 17);
+    break;
+  case 2: // Map 3 no dog
+    link(1, 2);
+    link(2, 6);
+    link(3, 4);
+    link(4, 8);
+    link(5, 6);
+    link(5, 13);
+    link(6, 7);
+    link(6, 10);
+    link(7, 8);
+    link(7, 11);
+    link(9, 14);
+    link(10, 16);
+    link(11, 12);
+    link(12, 17);
+    link(13, 14);
+    link(13, 15);
+    link(15, 16);
+    link(16, 17);
+    break;
+  // Map One Dog 1
+  case 3:
+    link(1, 2);
+    link(2, 6);
+    link(3, 4);
+    link(4, 8);
+    link(5, 6);
+    link(6, 7);
+    link(6, 10);
+    link(7, 8);
+    link(7, 11);
+    link(9, 10);
+    link(9, 14);
+    link(10, 16);
+    link(11, 12);
+    link(12, 17);
+    link(13, 15);
+    link(15, 16);
+    link(16, 17);
+    break;
+    // Map Two Dog 1
+  case 4:
+    link(1, 2);
+    link(2, 6);
+    link(3, 4);
+    link(4, 8);
+    link(5, 6);
+    link(6, 7);
+    link(6, 10);
+    link(7, 8);
+    link(8, 12);
+    link(9, 10);
+    link(9, 14);
+    link(10, 16);
+    link(11, 12);
+    link(12, 17);
+    link(13, 15);
+    link(15, 16);
+    link(16, 17);
+    break;
+  case 5:
+    // Map 3 dog 1
+    link(1, 2);
+    link(2, 6);
+    link(3, 4);
+    link(4, 8);
+    link(5, 6);
+    link(6, 7);
+    link(6, 10);
+    link(7, 8);
+    link(7, 11);
+    link(9, 14);
+    link(10, 16);
+    link(11, 12);
+    link(12, 17);
+    link(13, 14);
+    link(13, 15);
+    link(15, 16);
+    link(16, 17);
+    break;
+    //Map One Dog 2
+  case 6:
+    link(1, 2);
+    link(2, 6);
+    link(3, 4);
+    link(4, 8);
+    link(5, 13);
+    link(5, 6);
+    link(6, 7);
+    link(6, 10);
+    link(7, 8);
+    link(7, 11);
+    link(9, 10);
+    link(9, 14);
+    link(10, 16);
+    link(11, 12);
+    link(12, 17);
+    link(13, 15);
+    link(16, 17);
+    break;
+  case 7:
+    //Map Two Dog 2
+
+    link(1, 2);
+    link(2, 6);
+    link(3, 4);
+    link(4, 8);
+    link(5, 13);
+    link(5, 6);
+    link(6, 7);
+    link(6, 10);
+    link(7, 8);
+    link(8, 12);
+    link(9, 10);
+    link(9, 14);
+    link(10, 16);
+    link(11, 12);
+    link(12, 17);
+    link(13, 15);
+    link(16, 17);
+    break;
+  case 8: // Map 3 dog 2
+    link(1, 2);
+    link(2, 6);
+    link(3, 4);
+    link(4, 8);
+    link(5, 13);
+    link(5, 6);
+    link(6, 7);
+    link(6, 10);
+    link(7, 8);
+    link(7, 11);
+    link(9, 14);
+    link(10, 16);
+    link(11, 12);
+    link(12, 17);
+    link(13, 14);
+    link(13, 15);
+    link(16, 17);
+    break;
+    //Map One Dog 3
+  case 9:
+    link(1, 2);
+    link(2, 6);
+    link(3, 4);
+    link(4, 8);
+    link(5, 13);
+    link(5, 6);
+    link(6, 7);
+    link(7, 8);
+    link(7, 11);
+    link(9, 10);
+    link(9, 14);
+    link(10, 16);
+    link(11, 12);
+    link(12, 17);
+    link(13, 15);
+    link(15, 16);
+    link(16, 17);
+    break;
+  case 10:
+    // Map 2 Dog 3
+    link(1, 2);
+    link(2, 6);
+    link(3, 4);
+    link(4, 8);
+    link(5, 13);
+    link(5, 6);
+    link(6, 7);
+    link(7, 8);
+    link(8, 12);
+    link(9, 10);
+    link(9, 14);
+    link(10, 16);
+    link(11, 12);
+    link(12, 17);
+    link(13, 15);
+    link(15, 16);
+    link(16, 17);
+    break;
+  case 11:
+    link(1, 2);
+    link(2, 6);
+    link(3, 4);
+    link(4, 8);
+    link(5, 13);
+    link(5, 6);
+    link(6, 7);
+    link(7, 8);
+    link(7, 11);
+    link(9, 14);
+    link(10, 16);
+    link(11, 12);
+    link(12, 17);
+    link(13, 14);
+    link(13, 15);
+    link(15, 16);
+    link(16, 17);
+    break;
+  }
 }
 
 //A path is a set of nodes in which each node has a predecessor and a successor.
