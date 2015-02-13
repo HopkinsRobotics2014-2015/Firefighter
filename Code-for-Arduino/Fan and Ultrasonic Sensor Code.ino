@@ -1,6 +1,6 @@
-int echoOut = 
-int echoIn =
-int fanPin =
+int echoOut = ;
+int echoIn =  ;
+int fanPin =  ;
 
 void setup()
 {
@@ -17,7 +17,7 @@ void loop()
   digitalWrite(echoOut, HIGH);
   delay(10);
   digitalWrite(echoOut, LOW);
-  int distance = pulseIn(inputPin, HIGH);
+  int distance = pulseIn(echoIn, HIGH);
   float distance1 = distance/57.355; //cm
   Serial.println(distance1);
   delay(100);
