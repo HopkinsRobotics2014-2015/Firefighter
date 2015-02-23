@@ -1,7 +1,15 @@
+import java.util.ArrayList;
 class Navigator{
     private Checkpoint[] checkpoints;
+    public Checkpoint prevCheckpoint;
+    public Checkpoint nextCheckpoint;
+    private int target;
+    private int[] targets = {0,3,10,8};//{0,3,10,8};
+    private int targetIndex = 0;
     public Navigator(){
-        checkpoints = new Checkpoint[17];
+        target = targets[0];
+        
+        checkpoints = new Checkpoint[18];
         checkpoints[0] = new Checkpoint (23, 42);
         checkpoints[1] = new Checkpoint (23, 114);
         checkpoints[2] = new Checkpoint (23, 166);
@@ -11,45 +19,30 @@ class Navigator{
         checkpoints[6] = new Checkpoint (97, 175);
         checkpoints[7] = new Checkpoint (97, 221);
         checkpoints[8] = new Checkpoint (143, 73);
-        checkpoints[9] = new Checkpoint (143, 114);
+        checkpoints[9] = new Checkpoint (143, 118);
         checkpoints[10] = new Checkpoint (150, 175);
         checkpoints[11] = new Checkpoint (150, 221);
         checkpoints[12] = new Checkpoint (169, 23);
         checkpoints[13] = new Checkpoint (169, 73);
         checkpoints[14] = new Checkpoint (220, 23);
-        checkpoints[15] = new Checkpoint (220, 114);
+        checkpoints[15] = new Checkpoint (220, 118);
         checkpoints[16] = new Checkpoint (220, 221);
+        checkpoints[17] = new Checkpoint (220, 175); // added a checkpoint in Room 1
+        prevCheckpoint = checkpoints[4];
+        nextCheckpoint = checkpoints[5];
     }
     
-    private class Checkpoint {
-        int x,y;
-        float f,g,h;
-        Checkpoint next;
-        ArrayList<Checkpoint> neighbors;
-        public Checkpoint(int _x, int _y){
-            this.x = _x;
-            this.y = _y;
-            this.f = Float.POSITIVE_INFINITY;
-            this.g = 0;
-            this.h = 0;
-            this.neighbors = new ArrayList<Checkpoint>();
-        }
-        
-        // must be a neighbor. can take into account carpets
-        float getCost(Node n){
-          if (neighbors.contains(n)){
-            return (n.x - x) * (n.x - x) + (n.y - y) * (n.y - y);
-          } else {
-            println("Cannot get cost: no connection between nodes");
-            exit();
-          }
-          return 0.0f;
-        }
-        
-        // does not require it to be a neighbor
-        float getStraightLineDistance(Node n){
-          return (n.x - x) * (n.x - x) + (n.y - y) * (n.y - y);
-        }
+    public void setTarget(int target, int map){
+      this.target = target;
+    }
+    
+    void link(int a, int b){
+      checkpoints[a-1].neighbors.add(checkpoints[b-1]);
+      checkpoints[b-1].neighbors.add(checkpoints[a-1]);
+    }
+    
+    public Point getNextCheckpoint(){
+      return new Point(nextCheckpoint.x, nextCheckpoint.y);
     }
         
     void ASTAR(Checkpoint startCheckpoint, Checkpoint endCheckpoint){
@@ -61,6 +54,7 @@ class Navigator{
       Checkpoint q = endCheckpoint;
       q.f = 0f;
       q.g = 0f;
+      q.next = q;
       
       open.add(q);
       
@@ -102,6 +96,25 @@ class Navigator{
       }
 }
 
+void plan(Particle loc){
+    setNeighbors(loc.map);
+    ASTAR(prevCheckpoint, checkpoints[target]);
+    this.nextCheckpoint = prevCheckpoint.next;
+    if ((loc.x - nextCheckpoint.x)*(loc.x - nextCheckpoint.x) + (loc.y - nextCheckpoint.y)*(loc.y - nextCheckpoint.y) < 25){
+      if (nextCheckpoint != checkpoints[target]){
+        prevCheckpoint = nextCheckpoint;
+        nextCheckpoint = nextCheckpoint.next;
+      } else {
+        if (targetIndex != targets.length - 1){
+          target = targets[++targetIndex];
+        }
+        this.prevCheckpoint = nextCheckpoint;
+        setNeighbors(loc.map);
+        ASTAR(prevCheckpoint, checkpoints[target]);
+        this.nextCheckpoint = prevCheckpoint.next;
+      }
+    } 
+}
 void setNeighbors(int map) {
 
   for (Checkpoint cp : checkpoints) {
@@ -111,6 +124,9 @@ void setNeighbors(int map) {
     cp.g = 0;
     cp.h = 0;
   }
+  link(11,18);
+  link(16,18);
+  link(17,18);
 
   switch (map) {
     // Map 1 No Dog
@@ -355,6 +371,8 @@ void setNeighbors(int map) {
     break;
   }
 }
+}
+
 
 //A path is a set of nodes in which each node has a predecessor and a successor.
 //The robot must always have a successor node in mind to which it is travelling

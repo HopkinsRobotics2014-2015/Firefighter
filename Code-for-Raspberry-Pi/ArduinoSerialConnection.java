@@ -28,9 +28,9 @@ public class ArduinoSerialConnection implements SerialPortEventListener {
         "/dev/ttyACM0",
         "/dev/ttyACM1",
          "/dev/ttyACM2",
-         "/dev/ttyACM3"// Linux
+         "/dev/ttyACM3",// Linux
 //        "/dev/serial", // Linux
-//        "COM4" // Windows
+        "COM5" // Windows
     };
     
     private String appName;
@@ -130,7 +130,7 @@ public class ArduinoSerialConnection implements SerialPortEventListener {
         }
     }
 
-    //
+    boolean running = false;
     // Handle serial port event
     public synchronized void serialEvent(SerialPortEvent oEvent) {
         //System.out.println("Event received: " + oEvent.toString());
@@ -144,7 +144,7 @@ public class ArduinoSerialConnection implements SerialPortEventListener {
                     }
                     String inputLine = input.readLine();
                     connected = true;
-                    //System.out.println("Arduino Sent: " + inputLine);
+                    System.out.println("Arduino Sent: " + inputLine);
                     
                     String[] chunks = inputLine.split(";");
                     
@@ -152,16 +152,28 @@ public class ArduinoSerialConnection implements SerialPortEventListener {
                         String[] tokens = chunk.trim().split(" ");
                         if (tokens.length == 2){
                             String key = tokens[0];
-                            int val = Integer.parseInt(tokens[1]);
+                            int val = (int)Integer.parseInt(tokens[1]);
                             if (val > 0){
                               most_recent_data.put(key, val); 
                             }
                         } else {
-                            System.out.println("Bad Token" + tokens[0]);
+                            if (inputLine.toLowerCase().contains("reset")){
+                              System.out.println("RESET");
+                              running = !running;
+                              if (running) {
+                                //try {Thread.sleep(1000);}catch (Exception e) {}
+                                //this.message = "G";
+                              }
+                              
+                            } else {
+                              System.out.println("Bad Token" + tokens[0]);
+                            }
                         }
                     }
-                    
-                    this.sendData(this.message);
+                      //if (running) {
+                        this.sendData("G;" + this.message);
+                      //}
+                      //System.out.println("Running is " + running);
                     break;
 
                 default:
@@ -173,7 +185,7 @@ public class ArduinoSerialConnection implements SerialPortEventListener {
         }
     }
         
-    public Map getMostRecentData(){
+    public Map<String, Integer> getMostRecentData(){
         return most_recent_data;
     }
 
@@ -186,14 +198,22 @@ public class ArduinoSerialConnection implements SerialPortEventListener {
             most_recent_data.put(tag, null);
         }
         
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                sendData("RESET;");
+            }
+        });
+        
     }
     
     public void establishConnection(){
         while (!connected){
-            sendData("hello;");
+            sendData("G; RESET;");
             try { Thread.sleep(300); } catch (InterruptedException ie) {}
         }
     }
+    
+    
 }
 
 
