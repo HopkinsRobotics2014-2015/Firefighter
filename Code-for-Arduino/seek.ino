@@ -74,16 +74,18 @@ void loop()
   static unsigned long int pmillis1 = millis();
   if (Serial.available() > 0){
     int inChar = Serial.read();
-    if (isDigit(inChar)){
-      input_val += (char)inChar;
-    } else if (inChar == ';' || inChar == '\n'){
-      process(input_key, input_val);
-      input_key = "";
-      input_val = "";
-    } else {
-      
-      input_key += (char)inChar;
-      
+    if (inChar != ' '){
+      if (isDigit(inChar)){
+        input_val += (char)inChar;
+      } else if (inChar == ';' || inChar == '\n'){
+        process(input_key, input_val);
+        input_key = "";
+        input_val = "";
+      } else {
+        
+        input_key += (char)inChar;
+        
+      }
     }
   } else if (millis() - pmillis1 > messageInterval) {
 //      Serial << period << " " <<  blinkrate << endl;
