@@ -1,21 +1,35 @@
 #include "Streaming.h"
 
-int echoOutF = 31;
-int echoInF = 30;
+// North
+int echoOutF = 22;
+int echoInF = 23;
 
-int echoOutB = 0;
-int echoInB = 0;
+// East
+int echoOutR = 28; 
+int echoInR = 29;
 
-int echoOutL = 0;
-int echoInL = 0;
+//South
+int echoOutB = 24;
+int echoInB = 25;
 
-int echoOutR = 0;
-int echoInR = 0;
+// West
+int echoOutL = 26;
+int echoInL = 27;
+
+int motorPortH = 2;
+int motorPortV = 3;
+int servoPort = 5;
 
 int ledPin = 13;
 
 int messageInterval = 100;
 
+struct motorControl {
+  int v;
+  int h;
+};
+
+struct motorControl motors;
 
 void setup()
 {
@@ -33,13 +47,19 @@ void setup()
     pinMode(echoInR, INPUT);
     pinMode(echoOutR, OUTPUT); 
     
+    motors.h = 191;
+    motors.v = 191;
+    
     Serial.begin(9600);
-    while(Serial.available() <= 0){
-        ;
+    Serial.println("reset;");
+    while(true){
+      if (Serial.available() > 0){
+        if (Serial.read() == 'G'){ break;}
+      }
     }
     Serial << "ok" << endl;
 }
-
+int DOM = 0;
 double blinkrate = 0;
 double period = 1000.0;
 String input_key = "";
@@ -67,25 +87,34 @@ void loop()
     }
   } else if (millis() - pmillis1 > messageInterval) {
 //      Serial << period << " " <<  blinkrate << endl;
-      Serial << "NORTH" << " " << north << ';' << endl;//" " << south << " " << east << " " << west << endl; 
-
+     Serial << "NORTH " << north << "; SOUTH " << south << "; EAST " << east << "; WEST " << west << ";" << " MH " << motors.h << "; MV " << motors.v << endl; 
+     // Serial << "ok" << endl;
       pmillis1 = millis();
       //Blink();
   }
 
 
-//int south = getUltrasonicB();
-//int east = getUltrasonicL();
-//int west = getUltrasonicR();
-north = getUltrasonicF();
+/*south = getUltrasonicB();
+east = getUltrasonicL();
+west = getUltrasonicR();
+north = getUltrasonicF();*/
+
 Blink();
+ analogWrite(motorPortH, motors.h);
+ analogWrite(motorPortV, motors.v);
+
+  
 }
 
 void process(String key, String val){
-  if (key.equals("FREQ")){
+  if (key.equals("MH")){
+    motors.h = val.toInt();
+  } else if (key.equals("MV")){
+    motors.v = val.toInt();
+  } else if (key.equals("FREQ")){
     blinkrate = val.toInt();
   } else if (key.equals("PER")){
-    period = val.toInt();
+    period = val.toInt();    
   }
 }
 
@@ -133,7 +162,7 @@ int getUltrasonicB(){
   digitalWrite(echoOutB, HIGH);
   delayMicroseconds(10);
   digitalWrite(echoOutB, LOW);
-  int distanceB = pulseIn(echoInB, HIGH)/57.355;
+  int distanceB = pulseIn(echoInB, HIGH, 58000)/57.355;
   //float distanceB = distance/57.355; //cm
   
   return distanceB;
@@ -147,7 +176,7 @@ int getUltrasonicL(){
   digitalWrite(echoOutL, HIGH);
   delayMicroseconds(10);
   digitalWrite(echoOutL, LOW);
-  int distanceL = pulseIn(echoInL, HIGH)/57.355;
+  int distanceL = pulseIn(echoInL, HIGH, 58000)/57.355;
  // float distanceE = distance/57.355; //cm
   
   return distanceL;
@@ -161,7 +190,7 @@ int getUltrasonicR(){
   digitalWrite(echoOutR, HIGH);
   delayMicroseconds(10);
   digitalWrite(echoOutR, LOW);
-  int distanceR = pulseIn(echoInR, HIGH)/57.355;
+  int distanceR = pulseIn(echoInR, HIGH, 48000)/57.355;
   //float distanceW = distance/57.355; //cm
   
   return distanceR;
