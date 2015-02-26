@@ -5,7 +5,7 @@ public class Particle_Filter{
     int numParticles = 1024;
     public Particle[] working_set_particles = new Particle[numParticles];
     private Particle[] resampled_Particles = new Particle[numParticles];
-    double measurementNoise = 5;
+    double measurementNoise = 10;
     int current_map = 3;
     double[] long_term_mapCount = {0,0,0,0,0,0,0,0,0,0,0,0};
     int mapCountIterations = 0;
@@ -24,18 +24,9 @@ public class Particle_Filter{
     public Particle process(sensorInput distance, motorControl motors){
         moveParticles(motors);
         updateMeasurementProbability(distance);
-        return resample();
+        Particle p = resample();
+        return p;
     }
-    
-    static class Particle {
-      int x;
-      int y;
-      double w; // weight
-      double orientation;
-      int map;
-      int dog;
-      Particle(){}
-    };
     
     private int millis(){
         return (int)( ((double)(System.nanoTime() - startTime)) * 0.000001);
@@ -80,8 +71,8 @@ public class Particle_Filter{
         }
         for (int i = 0; i < numParticles; i++){
             working_set_particles[i] = new Particle();
-            working_set_particles[i].x = (int) Math.floor(random_Gaussian(centerPos.x, 122)); // within half an arena of the expected position
-            working_set_particles[i].y = (int) Math.floor(random_Gaussian(centerPos.y, 122));
+            working_set_particles[i].x = (int) Math.min(Math.abs(Math.floor(random_Gaussian(centerPos.x, 50))), 244);
+            working_set_particles[i].y = (int) Math.min(Math.abs(Math.floor(random_Gaussian(centerPos.y, 50))), 244);
             working_set_particles[i].orientation = Math.random() * 2 * Math.PI;
             working_set_particles[i].w = 1.0f / (double) numParticles; // each particle is equally likely at first.
             working_set_particles[i].map = (int) Math.floor(Math.random() * 12);
@@ -121,10 +112,13 @@ public class Particle_Filter{
             
             int dir = 0;
             for (dir = 0; dir < 4; dir++){
+              if (distance.get[dir] != 0){
                 int meas = distance.get[dir];
+                
                 int expect = expectedMeasurements.get[dir];
                 double change = Math.abs(Gaussian(meas, measurementNoise, expect));
                 w *= change;
+              }
             }
             if (w > max) max = w;
             working_set_particles[i].w = w; // changed to *= to include conditional probability, but it works better with = for some reason.
@@ -212,10 +206,26 @@ public class Particle_Filter{
         current_map = maxInd;
         maxParticle.map = current_map; // maybe we should be more explicit in our assumptions.
         // i.e. favor the maps without dogs until we run into one, or something like that.
+      /*  
+        for (int i = 0; i < 3 - ("" + maxParticle.x).length(); i++){
+            System.out.print(" ");
+        }
+        System.out.print(maxParticle.x + " ");
+        for (int i = 0; i < 3 - ("" + maxParticle.y).length(); i++){
+            System.out.print(" ");
+        }
+        System.out.print(maxParticle.y + "   ");
+        
         System.out.print(current_map + " ");
         for (double prob : map_probabilities){
-            System.out.print(Math.floor(10000*prob)/100.0 + " ");
-        }
+            String output = "" + Math.floor(10000*prob)/100.0;
+            System.out.print(output);
+            for (int i = 0; i < 7 - output.length(); i++){
+                System.out.print(" ");
+            }
+        }*/
+        //System.out.println();
+        
         return maxParticle;
     }
 }
