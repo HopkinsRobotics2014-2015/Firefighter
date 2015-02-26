@@ -99,7 +99,7 @@ class Navigator{
 void plan(Particle loc){
     setNeighbors(loc.map);
     ASTAR(prevCheckpoint, checkpoints[target]);
-    this.nextCheckpoint = prevCheckpoint.next;
+    //this.nextCheckpoint = prevCheckpoint.next;
     if ((loc.x - nextCheckpoint.x)*(loc.x - nextCheckpoint.x) + (loc.y - nextCheckpoint.y)*(loc.y - nextCheckpoint.y) < 25){
       if (nextCheckpoint != checkpoints[target]){
         prevCheckpoint = nextCheckpoint;

@@ -17,8 +17,8 @@ public class Control {
     mc.v = 191;
     if (mp.straightLine(loc, new Point(next.x, next.y))){
         
-        mc.h += (int)(Math.cos(newAngle) * 100); 
-        mc.v -= (int)(Math.sin(newAngle) * 100);
+        mc.h += (int)(Math.cos(newAngle) * 50); 
+        mc.v += (int)(Math.sin(newAngle) * 50); // Make this minus if motor is reversed
         //return mc;
     }
     
@@ -30,8 +30,8 @@ public class Control {
     trueAngle = Math.atan2(deltaY, deltaX);
     newAngle = trueAngle + loc.orientation; // might have to be a +
     
-    mc.h += (int)(Math.cos(newAngle) * 75); 
-    mc.v -= (int)(Math.sin(newAngle) * 75);
+    mc.h += (int)(Math.cos(newAngle) * 40); 
+    mc.v += (int)(Math.sin(newAngle) * 40);
          
     return mc;
     

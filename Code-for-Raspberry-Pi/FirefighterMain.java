@@ -29,10 +29,12 @@ class FirefighterMain {
         
         susanin = new Maps();
         
+        nav = new Navigator();
+        
         Control control = new Control();
         
         // Initialize the filter with the expected start position.
-        //filter = new Particle_Filter((int)( x + Math.random()*20), (int) (y + (Math.random() * 20 - 10)));
+        filter = new Particle_Filter(93, 20);
         sensorInput sense = new sensorInput();
        
         String[] dirs = {"NORTH", "EAST", "SOUTH", "WEST"};
@@ -43,6 +45,9 @@ class FirefighterMain {
         int targeth = 191;
         int targetv = 191;
         
+        double x = 100.0;
+        double y = 25.0;
+        
         asc = new ArduinoSerialConnection();
         if ( asc.initialize() ) {
             asc.establishConnection();
@@ -50,8 +55,10 @@ class FirefighterMain {
             
                 //** Main loop goes here **//
                 data = asc.getMostRecentData(); 
-               // if (data.get(dirs[dir]) != null && data.get(dirs[dir]) > 30 && data.get(dirs[dir]) > 0){
-                  /*if (targeth > motors.h){
+                
+                // ROAM RANDOMLY CODE:
+                /* if (data.get(dirs[dir]) != null && data.get(dirs[dir]) > 30 && data.get(dirs[dir]) > 0){
+                  if (targeth > motors.h){
                     motors.h += 1;
                   } else if (targeth < motors.h){
                     motors.h -= 1;
@@ -95,9 +102,30 @@ class FirefighterMain {
                     break;
                 } 
                 asc.setMessage("MH" + motors.h + ";MV" + motors.v + ";");*/
-                asc.setMessage("FREQ2;PER1000;");
+                
+                // BLINK CODE: asc.setMessage("FREQ2;PER1000;");
+                
+                sensorInput sensors = new sensorInput();
+                sensors.north = data.get("NORTH");
+                sensors.east = data.get("EAST");
+                sensors.south = data.get("SOUTH");
+                sensors.west = data.get("WEST");
+                sensors.get[0] = sensors.north;
+                sensors.get[1] = sensors.east;
+                sensors.get[2] = sensors.south;
+                sensors.get[3] = sensors.west;
+                
+                Particle loc = filter.process(sensors, motors);
+               // Particle loc = filter.process(susanin.getExpectedMeasurements((int)x,(int)y,0,0), motors);
+                nav.plan(loc);
+                motors = control.getMotors(loc, nav.prevCheckpoint, nav.nextCheckpoint);
+                
+                System.out.println(/*(int) x + " " + (int) y + */" LOC: " + loc.x + "," + loc.y  + " Nav: " + nav.nextCheckpoint.x + "," + nav.nextCheckpoint.y + " MH: " + motors.h + " MV: " + motors.v);
+                
+                //x += (motors.h - 191) / 500.0;
+                //y += (motors.v - 191) / 500.0;
             }
             //asc.close();
-        }       
+        }
     }
 }

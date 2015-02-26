@@ -30,7 +30,7 @@ public class ArduinoSerialConnection implements SerialPortEventListener {
          "/dev/ttyACM2",
          "/dev/ttyACM3",// Linux
 //        "/dev/serial", // Linux
-        "COM5" // Windows
+        "COM3", "COM4", "COM5" // Windows
     };
     
     private String appName;
@@ -108,7 +108,7 @@ public class ArduinoSerialConnection implements SerialPortEventListener {
     
     public void sendData(String data) {
         try {
-            System.out.println("Sending data: '" + data +"'");
+            //System.out.println("Sending data: '" + data +"'");
             
             // open the streams and send the "y" character
             output = serialPort.getOutputStream();
@@ -142,9 +142,10 @@ public class ArduinoSerialConnection implements SerialPortEventListener {
                             new InputStreamReader(
                                     serialPort.getInputStream()));
                     }
-                    String inputLine = input.readLine();
+                    try {
+                      String inputLine = input.readLine();
                     connected = true;
-                    System.out.println("Arduino Sent: " + inputLine);
+                  //  System.out.println("Arduino Sent: " + inputLine);
                     
                     String[] chunks = inputLine.split(";");
                     
@@ -174,11 +175,16 @@ public class ArduinoSerialConnection implements SerialPortEventListener {
                         this.sendData("G;" + this.message);
                       //}
                       //System.out.println("Running is " + running);
+                      } catch (java.io.IOException e) {
+                      //
+                    }
                     break;
 
                 default:
                     break;
+                
             }
+            
         } 
         catch (Exception e) {
             System.err.println(e.toString());
@@ -195,12 +201,14 @@ public class ArduinoSerialConnection implements SerialPortEventListener {
         
         // Initialize most_recent_data HashMap
         for (String tag : CommunicationTags){
-            most_recent_data.put(tag, null);
+            most_recent_data.put(tag, 0);
         }
         
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
-                sendData("RESET;");
+              if (connected){
+                 sendData("RESET;");
+              }
             }
         });
         
