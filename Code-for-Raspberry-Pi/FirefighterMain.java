@@ -100,8 +100,8 @@ class FirefighterMain {
                     targeth = 115;
                     targetv = 240;
                     break;
-                } 
-                asc.setMessage("MH" + motors.h + ";MV" + motors.v + ";");*/
+                } */
+                asc.setMessage("MH" + motors.h + ";MV" + motors.v + ";");
                 
                 // BLINK CODE: asc.setMessage("FREQ2;PER1000;");
                 
