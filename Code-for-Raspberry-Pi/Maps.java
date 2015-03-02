@@ -37,7 +37,13 @@ class Maps {
     */
     
     static int[][] wall_coordinates = {
-        {0, 0,0,244,0}, // outer wall
+      {0, 0,0,181,0},
+        {0, 0,0,0,78},
+          {0, 181,0,181,78},
+            {0, 0,78,181,78},
+              {1, 161, 29, 161, 49}
+           
+        /*{0, 0,0,244,0}, // outer wall
         {3, 72,0,72,88}, // room 
         {0, 0,0,0,244}, // outer wall
         {0, 244,0,244,244}, // outer wall
@@ -68,7 +74,7 @@ class Maps {
         {1, 125, 152, 125, 198,   1,4,7,10}, // map2
         {1, 125, 198, 125, 244,   0,2,3,5,6,8,9,11}, // map1, map3
             
-        {0, 0,244,244,244} // outer wall
+        {0, 0,244,244,244} // outer wall*/
     };
     
     public Maps(){
@@ -130,8 +136,8 @@ class Maps {
     }
 
     static Wall[] all_walls = new Wall[wall_coordinates.length];
-    public static Wall[] horizontal_walls = new Wall[10];
-    public static Wall[] vertical_walls = new Wall[10];
+    public static Wall[] horizontal_walls = new Wall[2];
+    public static Wall[] vertical_walls = new Wall[3];
 
     private static void createWalls(){
         int i = 0;

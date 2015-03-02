@@ -1,28 +1,31 @@
 #include "Streaming.h"
+#include <Servo.h>
 
 // North
 int echoOutF = 22;
 int echoInF = 23;
 
-// East
-int echoOutR = 28; 
-int echoInR = 29;
+// South
+int echoOutB = 28; 
+int echoInB = 29;
 
-//South
-int echoOutB = 24;
-int echoInB = 25;
+//East
+int echoOutR = 24;
+int echoInR = 25;
 
 // West
 int echoOutL = 26;
 int echoInL = 27;
 
-int motorPortH = 2;
-int motorPortV = 3;
-int servoPort = 5;
+int motorPortH = 3;
+int motorPortV = 5;
+//int servoPort = 5;
 
 int ledPin = 13;
 
 int messageInterval = 100;
+
+//Servo servo;
 
 struct motorControl {
   int v;
@@ -33,6 +36,7 @@ struct motorControl motors;
 
 void setup()
 {
+    //servo.write(45);
     pinMode(ledPin, OUTPUT);
 
     pinMode(echoInF, INPUT);
@@ -49,6 +53,8 @@ void setup()
     
     motors.h = 191;
     motors.v = 191;
+    
+    //servo.attach(6); // Servoport 
     
     Serial.begin(9600);
     Serial.println("reset;");
@@ -96,10 +102,10 @@ void loop()
   }
 
 
-/*south = getUltrasonicB();
-east = getUltrasonicL();
-west = getUltrasonicR();
-north = getUltrasonicF();*/
+south = getUltrasonicB();
+east = getUltrasonicR();
+west = getUltrasonicL();
+north = getUltrasonicF();
 
 Blink();
  analogWrite(motorPortH, motors.h);
@@ -117,6 +123,11 @@ void process(String key, String val){
     blinkrate = val.toInt();
   } else if (key.equals("PER")){
     period = val.toInt();    
+  } else if (key.equals("RESET")){
+    asm volatile ("  jmp 0");  
+  } else if (key.equals("SR")){
+    //servo.write(val.toInt());
+    //Serial.println(val.toInt());
   }
 }
 

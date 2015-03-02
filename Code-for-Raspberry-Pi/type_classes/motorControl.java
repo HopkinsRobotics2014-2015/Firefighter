@@ -3,7 +3,7 @@ class motorControl {
     int h;
     static double cmpsV = 11.0; // centimeters per second, should be approx 11.
     static double cmpsH = 11.0; // centimeters per second, should be approx 11.
-    static double motorNoise = 6;
+    static double motorNoise = 2;
     motorControl(){}
     static int getMotorPower(double percentage){
         int scaledPower = (int) Math.floor(191 + 50 * percentage);

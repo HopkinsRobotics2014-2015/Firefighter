@@ -1,15 +1,15 @@
 import java.util.ArrayList;
 class Navigator{
-    private Checkpoint[] checkpoints;
+    public  Checkpoint[] checkpoints;
     public Checkpoint prevCheckpoint;
     public Checkpoint nextCheckpoint;
     private int target;
-    private int[] targets = {0,3,10,8};//{0,3,10,8};
+    private int[] targets = {1,6,5};//{0,3,10,8};//{0,3,10,8};
     private int targetIndex = 0;
     public Navigator(){
         target = targets[0];
         
-        checkpoints = new Checkpoint[18];
+        /*checkpoints = new Checkpoint[18];
         checkpoints[0] = new Checkpoint (23, 42);
         checkpoints[1] = new Checkpoint (23, 114);
         checkpoints[2] = new Checkpoint (23, 166);
@@ -29,7 +29,23 @@ class Navigator{
         checkpoints[16] = new Checkpoint (220, 221);
         checkpoints[17] = new Checkpoint (220, 175); // added a checkpoint in Room 1
         prevCheckpoint = checkpoints[4];
-        nextCheckpoint = checkpoints[5];
+        nextCheckpoint = checkpoints[5];*/
+        
+        checkpoints = new Checkpoint[7];
+        checkpoints[0] = new Checkpoint(30,40);
+        checkpoints[1] = new Checkpoint(40,55);
+        checkpoints[2] = new Checkpoint(80,20);
+        checkpoints[3] = new Checkpoint(80,39);
+        checkpoints[4] = new Checkpoint(80,55);
+        checkpoints[5] = new Checkpoint(120,40);
+        checkpoints[6] = new Checkpoint(120,55);
+        link(1,2);
+        link(1,6);
+        link(2,7);
+        link(6,7);
+        link(6,7);
+        prevCheckpoint = checkpoints[0];
+        nextCheckpoint = checkpoints[targets[0]];
     }
     
     public void setTarget(int target, int map){
@@ -97,21 +113,23 @@ class Navigator{
 }
 
 void plan(Particle loc){
-    setNeighbors(loc.map);
+    //setNeighbors(loc.map);
     ASTAR(prevCheckpoint, checkpoints[target]);
     //this.nextCheckpoint = prevCheckpoint.next;
-    if ((loc.x - nextCheckpoint.x)*(loc.x - nextCheckpoint.x) + (loc.y - nextCheckpoint.y)*(loc.y - nextCheckpoint.y) < 25){
-      if (nextCheckpoint != checkpoints[target]){
-        prevCheckpoint = nextCheckpoint;
+    if ((loc.x - nextCheckpoint.x)*(loc.x - nextCheckpoint.x) + (loc.y - nextCheckpoint.y)*(loc.y - nextCheckpoint.y) < 50){
+      System.out.println("REACHED CHECKPOINT " + nextCheckpoint.x + " " + nextCheckpoint.y);
+      prevCheckpoint = nextCheckpoint;
+      if (nextCheckpoint != checkpoints[target]){  
         nextCheckpoint = nextCheckpoint.next;
       } else {
         if (targetIndex != targets.length - 1){
           target = targets[++targetIndex];
+          System.out.println("New Target: " + targetIndex);
         }
-        this.prevCheckpoint = nextCheckpoint;
-        setNeighbors(loc.map);
+       // setNeighbors(loc.map);
         ASTAR(prevCheckpoint, checkpoints[target]);
-        this.nextCheckpoint = prevCheckpoint.next;
+        this.nextCheckpoint = checkpoints[target];//prevCheckpoint.next;
+        System.out.println("NEXT CHECKPOINT " + nextCheckpoint.x + " " + nextCheckpoint.y);
       }
     } 
 }

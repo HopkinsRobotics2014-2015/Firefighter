@@ -1,5 +1,5 @@
 public class Control {
-  motorControl getMotors(Particle loc, Checkpoint prev, Checkpoint next){
+  motorControl getMotors(Particle loc, Checkpoint prev, Checkpoint next, sensorInput sensors){
     float a = next.y - prev.y;
     float b = -(next.x - prev.x);
     float c = next.x * prev.y - next.y * prev.x; 
@@ -19,6 +19,7 @@ public class Control {
         
         mc.h += (int)(Math.cos(newAngle) * 50); 
         mc.v += (int)(Math.sin(newAngle) * 50); // Make this minus if motor is reversed
+        
         //return mc;
     }
     
@@ -30,8 +31,8 @@ public class Control {
     trueAngle = Math.atan2(deltaY, deltaX);
     newAngle = trueAngle + loc.orientation; // might have to be a +
     
-    mc.h += (int)(Math.cos(newAngle) * 40); 
-    mc.v += (int)(Math.sin(newAngle) * 40);
+    mc.h += (int)(Math.cos(newAngle) * 20); 
+    mc.v += (int)(Math.sin(newAngle) * 20);
          
     return mc;
     

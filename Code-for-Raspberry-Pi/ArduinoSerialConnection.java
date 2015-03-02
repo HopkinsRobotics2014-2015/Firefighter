@@ -145,7 +145,7 @@ public class ArduinoSerialConnection implements SerialPortEventListener {
                     try {
                       String inputLine = input.readLine();
                     connected = true;
-                  //  System.out.println("Arduino Sent: " + inputLine);
+             //       System.out.println("Arduino Sent: " + inputLine);
                     
                     String[] chunks = inputLine.split(";");
                     

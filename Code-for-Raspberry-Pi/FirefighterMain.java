@@ -1,5 +1,6 @@
 import java.util.Scanner;
 import java.util.Map;
+import java.util.HashMap;
 class FirefighterMain {   
     static ArduinoSerialConnection asc; 
     static Maps susanin; // Map for testing purposes
@@ -8,6 +9,8 @@ class FirefighterMain {
     //// Motion Control /// Uses location and orientation to move to short-term destination
     
     static Map<String, Integer> data; // most recent sensor data from Arduino
+    static Map<String, Integer> oldData; // previous data
+    
     
     public static void main(String[] args){
     
@@ -31,10 +34,13 @@ class FirefighterMain {
         
         nav = new Navigator();
         
+        double x = 20.0;
+        double y = 20.0;
+        
         Control control = new Control();
         
         // Initialize the filter with the expected start position.
-        filter = new Particle_Filter(93, 20);
+        filter = new Particle_Filter((int)x, (int)y);
         sensorInput sense = new sensorInput();
        
         String[] dirs = {"NORTH", "EAST", "SOUTH", "WEST"};
@@ -42,13 +48,15 @@ class FirefighterMain {
         int dir = 0;
         motors.h = 191;
         motors.v = 191;
-        int targeth = 191;
-        int targetv = 191;
-        
-        double x = 100.0;
-        double y = 25.0;
-        
+       // int targeth = 191;
+       // int targetv = 191;
+        oldData = new HashMap<String, Integer>();
         asc = new ArduinoSerialConnection();
+        for (String tag : asc.CommunicationTags){
+            oldData.put(tag, 0);
+        }
+        
+        
         if ( asc.initialize() ) {
             asc.establishConnection();
             while (true) {
@@ -115,12 +123,20 @@ class FirefighterMain {
                 sensors.get[2] = sensors.south;
                 sensors.get[3] = sensors.west;
                 
-                Particle loc = filter.process(sensors, motors);
-               // Particle loc = filter.process(susanin.getExpectedMeasurements((int)x,(int)y,0,0), motors);
-                nav.plan(loc);
-                motors = control.getMotors(loc, nav.prevCheckpoint, nav.nextCheckpoint);
                 
-                System.out.println(/*(int) x + " " + (int) y + */" LOC: " + loc.x + "," + loc.y  + " Nav: " + nav.nextCheckpoint.x + "," + nav.nextCheckpoint.y + " MH: " + motors.h + " MV: " + motors.v);
+                
+                //if (data.get("NORTH") != oldData.get("NORTH") || data.get("WEST") != oldData.get("WEST") || data.get("SOUTH") != oldData.get("SOUTH") || data.get("EAST") != oldData.get("EAST")){            
+                
+                  Particle loc = filter.process(sensors, motors);
+                 // Particle loc = filter.process(susanin.getExpectedMeasurements((int)x,(int)y,0,0), motors);
+                  nav.plan(loc);
+                  motors = control.getMotors(loc, nav.prevCheckpoint, nav.nextCheckpoint, sensors);
+         
+                  System.out.println(/*(int) x + " " + (int) y + */" LOC: " + loc.orientation + " " + loc.x + "," + loc.y  + " Nav: " + nav.nextCheckpoint.x + "," + nav.nextCheckpoint.y + " MH: " + motors.h + " MV: " + motors.v);
+                 // oldData = data;
+               // }
+                
+                
                 
                 //x += (motors.h - 191) / 500.0;
                 //y += (motors.v - 191) / 500.0;
