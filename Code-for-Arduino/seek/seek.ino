@@ -2,20 +2,20 @@
 #include <Servo.h>
 
 // North
-int echoOutF = 22;
-int echoInF = 23;
+int echoOutF = 49;
+int echoInF = 48;
 
 // South
-int echoOutB = 28; 
-int echoInB = 29;
+int echoOutB = 51; 
+int echoInB = 50;
 
 //East
-int echoOutR = 24;
-int echoInR = 25;
+int echoOutR = 53;
+int echoInR = 52;
 
 // West
-int echoOutL = 26;
-int echoInL = 27;
+int echoOutL = 47;
+int echoInL = 46;
 
 int motorPortH = 3;
 int motorPortV = 5;

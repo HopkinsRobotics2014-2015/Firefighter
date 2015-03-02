@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class Diagnosis extends PApplet{
-  laksjdfS
   ArduinoSerialConnection asc; 
   Particle_Filter filter; // Determines map, location, and orientation
   Navigator nav; // Determines short-term destination
@@ -89,10 +88,12 @@ public class Diagnosis extends PApplet{
     sensors.get[2] = sensors.south;
     sensors.get[3] = sensors.west;
     
+    println(sensors);
+    
     //if (data.get("NORTH") != oldData.get("NORTH") || data.get("WEST") != oldData.get("WEST") || data.get("SOUTH") != oldData.get("SOUTH") || data.get("EAST") != oldData.get("EAST")){            
     
-    //Particle loc = filter.process(sensors, motors);
-    Particle loc = filter.process(susanin.getExpectedMeasurements((int)x,(int)y,0,0), motors);
+    Particle loc = filter.process(sensors, motors);
+    //Particle loc = filter.process(susanin.getExpectedMeasurements((int)x,(int)y,0,0), motors);
     
     stroke(0,255,0);
     fill(0,255,0);

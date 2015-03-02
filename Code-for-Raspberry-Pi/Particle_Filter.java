@@ -5,7 +5,7 @@ public class Particle_Filter{
     int numParticles = 1024;
     public Particle[] working_set_particles = new Particle[numParticles];
     private Particle[] resampled_Particles = new Particle[numParticles];
-    double measurementNoise = 10;
+    double measurementNoise = 15;
     int current_map = 3;
     double[] long_term_mapCount = {0,0,0,0,0,0,0,0,0,0,0,0};
     int mapCountIterations = 0;
@@ -112,9 +112,9 @@ public class Particle_Filter{
             
             int dir = 0;
             for (dir = 0; dir < 4; dir++){
-              if (distance.get[dir] != 0){
+              if (distance.get[dir] != 0){ // && dir != 1
                 int meas = distance.get[dir];
-                
+                if (meas < distance.get[(dir + 2)%4]) w *= 2;
                 int expect = expectedMeasurements.get[dir];
                 double change = Math.abs(Gaussian(meas, measurementNoise, expect));
                 w *= change;
