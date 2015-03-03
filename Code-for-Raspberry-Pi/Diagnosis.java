@@ -5,6 +5,7 @@ import processing.opengl.*;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayList;
 
 public class Diagnosis extends PApplet{
   ArduinoSerialConnection asc; 
@@ -18,14 +19,14 @@ public class Diagnosis extends PApplet{
   Map<String, Integer> oldData; // previous data
   motorControl motors;
   Control control;
-  double x = 20.0;
-  double y = 20.0;
+  double x = 93.0;
+  double y = 25.0;
   
   
   public void setup(){
     size(800,600);
     background(255);
-    factor = min((width-2*margin)/180.0f, (height-2*margin)/78.0f);
+    factor = min((width-2*margin)/244.0f, (height-2*margin)/244.0f);
     
     motors = new motorControl();
         
@@ -57,6 +58,9 @@ public class Diagnosis extends PApplet{
     
     
   }
+  
+  ArrayList<sensorInput> lastTen = new ArrayList<sensorInput>();
+  
   public void draw(){
     background(255);
     pushMatrix();
@@ -88,14 +92,53 @@ public class Diagnosis extends PApplet{
     sensors.get[2] = sensors.south;
     sensors.get[3] = sensors.west;
     
+    lastTen.add(sensors);
+    sensorInput avgSensors = new sensorInput();
+    int sum = 0;
+    
+    if (lastTen.size() > 10){
+      sum = 0;
+      for (int i = lastTen.size() - 10; i < lastTen.size()-1; i++){
+        sum += lastTen.get(i).get[0];
+      }
+      avgSensors.north = (int) Math.round(sum / 10.0);
+      avgSensors.get[0] = (int) Math.round(sum / 10.0);
+      sum = 0;
+      for (int i = lastTen.size() - 10; i < lastTen.size()-1; i++){
+        sum += lastTen.get(i).get[1];
+      }
+      avgSensors.east = (int) Math.round(sum / 10.0);
+      avgSensors.get[1] = (int) Math.round(sum / 10.0);
+      sum = 0;
+      for (int i = lastTen.size() - 10; i < lastTen.size()-1; i++){
+        sum += lastTen.get(i).get[2];
+      }
+      avgSensors.south = (int)Math.round(sum / 10.0);
+      avgSensors.get[2] = (int) Math.round(sum / 10.0);
+      sum = 0;
+      for (int i = lastTen.size() - 10; i < lastTen.size()-1; i++){
+        sum += lastTen.get(i).get[3];
+      }
+      avgSensors.west = (int) Math.round(sum / 10.0);
+      avgSensors.get[3] = (int) Math.round(sum / 10.0);
+      
+    }
+    
+    
+    
+    
+    
     //println(sensors);
     
     //if (data.get("NORTH") != oldData.get("NORTH") || data.get("WEST") != oldData.get("WEST") || data.get("SOUTH") != oldData.get("SOUTH") || data.get("EAST") != oldData.get("EAST")){            
     
-    //Particle loc = filter.process(sensors, motors);
-    Particle loc = filter.process(susanin.getExpectedMeasurements((int)x,(int)y,0,0), motors);
+    Particle loc = filter.process(avgSensors, motors);
+    //Particle loc = filter.process(susanin.getExpectedMeasurements((int)x,(int)y,0,0), motors);
     
+    println(sensors);
+    println(avgSensors);
     println(susanin.getExpectedMeasurements((int)x,(int)y,0,0));
+    println();
     
     stroke(0,255,0);
     fill(0,255,0);
@@ -118,7 +161,7 @@ public class Diagnosis extends PApplet{
     
     
     motors = control.getMotors(loc, nav.prevCheckpoint, nav.nextCheckpoint, sensors);
-    System.out.println((int) x + " " + (int) y + " LOC: " + loc.orientation + " " + loc.x + "," + loc.y  + " Nav: " + nav.nextCheckpoint.x + "," + nav.nextCheckpoint.y + " MH: " + motors.h + " MV: " + motors.v);
+    //System.out.println((int) x + " " + (int) y + " LOC: " + loc.orientation + " " + loc.x + "," + loc.y  + " Nav: " + nav.nextCheckpoint.x + "," + nav.nextCheckpoint.y + " MH: " + motors.h + " MV: " + motors.v);
      // oldData = data;  
     popMatrix();     
   }

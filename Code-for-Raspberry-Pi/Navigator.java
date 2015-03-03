@@ -9,7 +9,7 @@ class Navigator{
     public Navigator(){
         target = targets[0];
         
-        /*checkpoints = new Checkpoint[18];
+        checkpoints = new Checkpoint[18];
         checkpoints[0] = new Checkpoint (23, 42);
         checkpoints[1] = new Checkpoint (23, 114);
         checkpoints[2] = new Checkpoint (23, 166);
@@ -29,8 +29,9 @@ class Navigator{
         checkpoints[16] = new Checkpoint (220, 221);
         checkpoints[17] = new Checkpoint (220, 175); // added a checkpoint in Room 1
         prevCheckpoint = checkpoints[4];
-        nextCheckpoint = checkpoints[5];*/
+        nextCheckpoint = checkpoints[5];
         
+        /*
         checkpoints = new Checkpoint[7];
         checkpoints[0] = new Checkpoint(30,40);
         checkpoints[1] = new Checkpoint(40,55);
@@ -45,7 +46,7 @@ class Navigator{
         link(6,7);
         link(6,7);
         prevCheckpoint = checkpoints[0];
-        nextCheckpoint = checkpoints[targets[0]];
+        nextCheckpoint = checkpoints[targets[0]];*/
     }
     
     public void setTarget(int target, int map){
@@ -113,7 +114,7 @@ class Navigator{
 }
 
 void plan(Particle loc){
-    //setNeighbors(loc.map);
+    setNeighbors(loc.map);
     ASTAR(prevCheckpoint, checkpoints[target]);
     //this.nextCheckpoint = prevCheckpoint.next;
     if ((loc.x - nextCheckpoint.x)*(loc.x - nextCheckpoint.x) + (loc.y - nextCheckpoint.y)*(loc.y - nextCheckpoint.y) < 50){

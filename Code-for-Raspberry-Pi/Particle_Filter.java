@@ -86,13 +86,13 @@ public class Particle_Filter{
             working_set_particles[i] = new Particle();
             working_set_particles[i].x = (int) Math.min(Math.abs(Math.floor(random_Gaussian(centerPos.x, 50))), 244);
             working_set_particles[i].y = (int) Math.min(Math.abs(Math.floor(random_Gaussian(centerPos.y, 50))), 244);
-            working_set_particles[i].orientation = Math.random() * 2 * Math.PI;
+            working_set_particles[i].orientation = 0;//Math.random() * 2 * Math.PI;
             working_set_particles[i].w = 1.0f / (double) numParticles; // each particle is equally likely at first.
             working_set_particles[i].map = (int) Math.floor(Math.random() * 12);
             resampled_Particles[i] = new Particle();
             resampled_Particles[i].x = working_set_particles[i].x;
             resampled_Particles[i].y = working_set_particles[i].y;
-            resampled_Particles[i].orientation = working_set_particles[i].orientation;
+            resampled_Particles[i].orientation = 0;//working_set_particles[i].orientation;
             resampled_Particles[i].w = working_set_particles[i].w;
             resampled_Particles[i].map = working_set_particles[i].map;
         }
@@ -127,10 +127,22 @@ public class Particle_Filter{
             for (dir = 0; dir < 4; dir++){
               if (distance.get[dir] != 0){ // && dir != 1
                 int meas = distance.get[dir];
-               // if (meas < distance.get[(dir + 2)%4]) w *= 2;
-                int expect = expectedMeasurements.get[dir];
-                double change = Math.abs(Gaussian(meas, measurementNoise, expect));
-                w *= change;
+                //if (dir != 1 || meas < 50){
+                if (meas < distance.get[(dir + 2)%4]) {
+                    int expect = expectedMeasurements.get[dir];
+                    
+                    
+                    
+                    double change = Math.abs(Gaussian(meas, measurementNoise, expect));
+                    
+                    if (meas > 60 && expect > 60){
+                      change *= 2;
+                      
+                    } 
+                
+                  w *= change;
+                }
+                
               }
             }
             if (w > max) max = w;
@@ -190,7 +202,7 @@ public class Particle_Filter{
             resampled_Particles[i].w = 1.0 / (double) numParticles;
             resampled_Particles[i].orientation = working_set_particles[index].orientation;
             //resampled_Particles[i].map = 1 + ((int) random_Gaussian(current_map + 2, 0.5)) % 3; // favor current map
-            resampled_Particles[i].map = possibilities.get((int) Math.floor(Math.random() * possibilities.size())); // pick a random map out of those that are still possibilities
+            resampled_Particles[i].map = 0;//possibilities.get((int) Math.floor(Math.random() * possibilities.size())); // pick a random map out of those that are still possibilities
             mapCount[working_set_particles[index].map]++;
             sumX += resampled_Particles[i].x;
             sumY += resampled_Particles[i].y;
