@@ -32,7 +32,7 @@ class Maps {
     10      2       3
     11      3       3
     
-    If we are sure that there is no dog, we will use only maps 3-11.
+    If we are sure that there is a dog, we will use only maps 3-11.
    
     */
     

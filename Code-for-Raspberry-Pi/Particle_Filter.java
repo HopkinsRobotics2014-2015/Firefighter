@@ -24,7 +24,20 @@ public class Particle_Filter{
     public Particle process(sensorInput distance, motorControl motors){
         moveParticles(motors);
         updateMeasurementProbability(distance);
+        
         Particle p = resample();
+        
+        int sumX = 0;
+        int sumY = 0;
+        
+        for (int i = 0; i < numParticles; i++){
+          sumX += working_set_particles[i].x;
+          sumY += working_set_particles[i].y;
+        }
+        
+        p.x = sumX / numParticles;
+        p.y = sumY / numParticles;
+        
         return p;
     }
     
@@ -114,7 +127,7 @@ public class Particle_Filter{
             for (dir = 0; dir < 4; dir++){
               if (distance.get[dir] != 0){ // && dir != 1
                 int meas = distance.get[dir];
-                if (meas < distance.get[(dir + 2)%4]) w *= 2;
+               // if (meas < distance.get[(dir + 2)%4]) w *= 2;
                 int expect = expectedMeasurements.get[dir];
                 double change = Math.abs(Gaussian(meas, measurementNoise, expect));
                 w *= change;

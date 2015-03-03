@@ -88,12 +88,14 @@ public class Diagnosis extends PApplet{
     sensors.get[2] = sensors.south;
     sensors.get[3] = sensors.west;
     
-    println(sensors);
+    //println(sensors);
     
     //if (data.get("NORTH") != oldData.get("NORTH") || data.get("WEST") != oldData.get("WEST") || data.get("SOUTH") != oldData.get("SOUTH") || data.get("EAST") != oldData.get("EAST")){            
     
-    Particle loc = filter.process(sensors, motors);
-    //Particle loc = filter.process(susanin.getExpectedMeasurements((int)x,(int)y,0,0), motors);
+    //Particle loc = filter.process(sensors, motors);
+    Particle loc = filter.process(susanin.getExpectedMeasurements((int)x,(int)y,0,0), motors);
+    
+    println(susanin.getExpectedMeasurements((int)x,(int)y,0,0));
     
     stroke(0,255,0);
     fill(0,255,0);
