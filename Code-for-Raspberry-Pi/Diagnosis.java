@@ -163,6 +163,8 @@ public class Diagnosis extends PApplet{
     motors = control.getMotors(loc, nav.prevCheckpoint, nav.nextCheckpoint, sensors);
     //System.out.println((int) x + " " + (int) y + " LOC: " + loc.orientation + " " + loc.x + "," + loc.y  + " Nav: " + nav.nextCheckpoint.x + "," + nav.nextCheckpoint.y + " MH: " + motors.h + " MV: " + motors.v);
      // oldData = data;  
+     asc.setMessage("MV"+motors.v+";MH"+motors.h+";");
+     println(motors.v, motors.h);
     popMatrix();     
   }
   

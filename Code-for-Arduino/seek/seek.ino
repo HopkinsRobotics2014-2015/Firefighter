@@ -19,13 +19,13 @@ int echoInL = 46;
 
 int motorPortH = 3;
 int motorPortV = 5;
-//int servoPort = 5;
+int servoPort = 7;
 
 int ledPin = 13;
 
 int messageInterval = 100;
 
-//Servo servo;
+Servo servo;
 
 struct motorControl {
   int v;
@@ -36,7 +36,7 @@ struct motorControl motors;
 
 void setup()
 {
-    //servo.write(45);
+    servo.write(45);
     pinMode(ledPin, OUTPUT);
 
     pinMode(echoInF, INPUT);
@@ -54,7 +54,7 @@ void setup()
     motors.h = 191;
     motors.v = 191;
     
-    //servo.attach(6); // Servoport 
+    servo.attach(servoPort); // Servoport 
     
     Serial.begin(9600);
     Serial.println("reset;");
@@ -126,8 +126,7 @@ void process(String key, String val){
   } else if (key.equals("RESET")){
     asm volatile ("  jmp 0");  
   } else if (key.equals("SR")){
-    //servo.write(val.toInt());
-    //Serial.println(val.toInt());
+    servo.write(val.toInt());
   }
 }
 
