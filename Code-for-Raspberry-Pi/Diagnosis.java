@@ -69,12 +69,7 @@ public class Diagnosis extends PApplet{
     scale(factor,factor);
     stroke(0);
     fill(0);
-    for (Maps.Wall w : susanin.vertical_walls){
-      line(w.x1, w.y1, w.x2, w.y2);
-    }
-    for (Maps.Wall w : susanin.horizontal_walls){
-      line(w.x1, w.y1, w.x2, w.y2);
-    }
+    
     
     
     //** Main loop goes here **//
@@ -134,6 +129,13 @@ public class Diagnosis extends PApplet{
     
     Particle loc = filter.process(avgSensors, motors);
     //Particle loc = filter.process(susanin.getExpectedMeasurements((int)x,(int)y,0,0), motors);
+    
+    for (Maps.Wall w : susanin.vertical_walls){
+      if (Maps.visible(w, loc.map)) line(w.x1, w.y1, w.x2, w.y2);
+    }
+    for (Maps.Wall w : susanin.horizontal_walls){
+      if (Maps.visible(w, loc.map)) line(w.x1, w.y1, w.x2, w.y2);
+    }
     
     println(sensors);
     println(avgSensors);

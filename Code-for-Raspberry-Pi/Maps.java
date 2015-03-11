@@ -266,7 +266,7 @@ class Maps {
         return Math.min(vertical_distance, horizontal_distance);
     }
     
-    private static boolean visible(Wall wall, int map){
+    public static boolean visible(Wall wall, int map){
         
         for (int m : wall.maps){
             if (m == map){
