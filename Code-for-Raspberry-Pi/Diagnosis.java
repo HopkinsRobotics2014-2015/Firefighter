@@ -116,7 +116,7 @@ public class Diagnosis extends PApplet{
       }
       avgSensors.west = (int) Math.round(sum / 10.0);
       avgSensors.get[3] = (int) Math.round(sum / 10.0);
-      
+      lastTen.remove(0);
     }
     
     

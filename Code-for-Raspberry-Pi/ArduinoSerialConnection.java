@@ -167,7 +167,7 @@ public class ArduinoSerialConnection implements SerialPortEventListener {
                               }
                               
                             } else {
-                              System.out.println("Bad Token" + tokens[0]);
+                              System.out.println("Bad Token: " + tokens[0]);
                             }
                         }
                     }

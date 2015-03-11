@@ -26,7 +26,9 @@ def listen(pressed):
 def on():
   GPIO.output(led_RED, 0)
   GPIO.output(led_GREEN, 1)
-  os.system("./go &")
+  os.system("sudo ifconfig eth0 169.254.0.2");
+  os.system("sudo ./go &")
+  #os.system("sudo ./run_diagnosis &")
   
 def off():
   GPIO.output(led_RED, 1)
@@ -34,6 +36,7 @@ def off():
   os.system("sudo pkill java")
       
 def clear():
+  off()
   GPIO.cleanup()
 
 atexit.register(clear)
